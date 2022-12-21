@@ -6,66 +6,64 @@ import csv
 budget_path = os.path.join("Resources/budget_data.csv")
 
 #declaring needed variables
-ttl_num_mon = 0
-net_ttl_amnt = 0
-avrg_chge = []
-grts_prof_incr = 0
-grts_prof_decr = 0
+mon_list = []
+total_amnt_list = []
+all_chngs_list = []
+
 
 
 #reading the csv file from the path
 with open (budget_path, 'r') as csv_budget:
     budget_reader = csv.reader(csv_budget, delimiter=",")
     
-    #skipping the first row (header)
+    
     next(budget_reader)
     
-    #for loop for each row
     for row in budget_reader:
         
-        #total number of months
-        ttl_num_mon = ttl_num_mon + 1    
+        #adding months to our list
         
-        #net total amount of "Profit/Losses" over the entire period
-        net_ttl_amnt += int(row[1])
+        mon_list.append(row[0])
         
+        #list of net total amount
+        total_amnt_list.append(int(row[1]))
         
-        
-        #greatest increase in profits (date and amount)
-        if int(row[1]) > grts_prof_incr:
-            grts_prof_incr = int(row[1])
-            grts_prof_incr_result = (f"Greatest Increase in Profits: {row[0]} (${grts_prof_incr})")
-        
-        #greatest decrease in profits (date and amount)
-        if int(row[1]) < grts_prof_decr:
-            grts_prof_decr = int(row[1])
-            grts_prof_decr_result = (f"Greatest Decrease in Profits: {row[0]} (${grts_prof_decr})") 
-    
-    
-    #printing the result to the terminal
-    print("Financial Analysis")
-    print("----------------------------")
-    print(f"Total Months: {ttl_num_mon}")
-    print(f"Total: ${net_ttl_amnt}")
-    print(grts_prof_incr_result)
-    print(grts_prof_decr_result)
-        
-
-#declarint path to the output file
-output_budget_path = os.path.join("analysis/budget_data_output.txt")
-
-#create and open a new .txt file so we can write in it
-with open (output_budget_path, 'w') as output:
-    budget_writer = csv.writer(output)
-    
-    #writing into .txt file
-    budget_writer.writerow(["Financial Analysis"])
-    budget_writer.writerow(["----------------------------"])
-    budget_writer.writerow([f"Total Months: {ttl_num_mon}"])
-    budget_writer.writerow([f"Total: ${net_ttl_amnt}"])
-    budget_writer.writerow([grts_prof_incr_result])
-    budget_writer.writerow([grts_prof_decr_result])
-
+        #lsit with all changes in Profit/Losses
+    for i in range(len(total_amnt_list)-1):
+        all_chngs_list.append(total_amnt_list[i + 1]-total_amnt_list[i])
    
+    average_chngs = round(sum(all_chngs_list)/len(all_chngs_list),2)
+    
+    grt_incr = max(all_chngs_list)
+    grt_decr = min(all_chngs_list)
+    
+    ttl_months = len(mon_list)
+    net_ttl = sum(total_amnt_list)
+     
+    
+    #searching for the index we need to find correct month of the the greatest increase and decrease
+    incr_month_index = all_chngs_list.index(grt_incr)+1
+    decr_month_index = all_chngs_list.index(grt_decr)+1
    
-   
+#printing the result to the terminal
+print("Financial Analysis")
+print("----------------------------")
+print(f"Total Months: {ttl_months}")
+print(f"Total: ${net_ttl}")
+print(f"Average Change: ${average_chngs}")
+print(f"Greatest Increase in Profits: {mon_list[incr_month_index]} (${grt_incr})")
+print(f"Greatest Decrease in Profits: {mon_list[decr_month_index]} (${grt_decr})")
+
+
+budget_output_path = os.path.join("analysis/budget_data.txt")
+
+with open(budget_output_path, 'w') as budget_output:
+    budger_writer = csv.writer(budget_output)    
+    
+    budger_writer.writerow(["Financial Analysis"])
+    budger_writer.writerow(["----------------------------"]) 
+    budger_writer.writerow([f"Total Months: {ttl_months}"]) 
+    budger_writer.writerow([f"Total: ${net_ttl}"]) 
+    budger_writer.writerow([f"Average Change: ${average_chngs}"]) 
+    budger_writer.writerow([f"Greatest Increase in Profits: {mon_list[incr_month_index]} (${grt_incr})"]) 
+    budger_writer.writerow([f"Greatest Decrease in Profits: {mon_list[decr_month_index]} (${grt_decr})"]) 
